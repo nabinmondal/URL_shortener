@@ -17,7 +17,6 @@ router.get('/', async(req,res)=>{
 // add a new url
 router.post('/',async(req,res)=>{
    const shortUrl = base62.encode(Date.now());
-   console.log(shortUrl);
    const Url = new URLS({
        LongUrl : req.body.LongUrl,
        ShortUrl : shortUrl.toString()
@@ -27,7 +26,6 @@ router.post('/',async(req,res)=>{
     res.status(201).json(savedUrl);
    }
    catch(err){
-       console.log(err);
        res.status(500).json({message : err});
    }
 });
@@ -36,15 +34,22 @@ router.get('/:shortUrl',async(req,res)=>{
     const query = {ShortUrl : req.params.shortUrl}; 
     try{
         const val = await URLS.findOne(query);
-        res.json(val);
+        if(val ==null){
+            res.status(404).json({
+                message : 'Short url not found'
+            })
+        }
+        else{
+            return res.status(200).json(val);
+        }
     }
     catch(err){
        res.status(404).json({message : err});
     }
 })
 // delete a url
-router.delete('/:shortUrl',(req,res)=>{
-    const query = {shortUrl : req.params.shortUrl};
+router.delete('/:shortUrl',async(req,res)=>{
+    const query = {ShortUrl : req.params.shortUrl};
     try{
         const val = await URLS.remove(query);
         res.status(200).json(val);
