@@ -1,0 +1,1 @@
+install all the dependencies and mongodb database and it is ready to be excecuted.
