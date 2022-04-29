@@ -11,7 +11,7 @@ router.get('/', async(req,res)=>{
             res.status(200).json(urls);
         }catch(err){
             console.log(err);
-            res.status(505).json({message : err});
+            res.status(500).json({message : err});
         }
 })
 // add a new url
@@ -44,17 +44,47 @@ router.get('/:shortUrl',async(req,res)=>{
         }
     }
     catch(err){
-       res.status(404).json({message : err});
+       res.status(500).json({message : err});
     }
 })
 // delete a url
 router.delete('/:shortUrl',async(req,res)=>{
     const query = {ShortUrl : req.params.shortUrl};
     try{
-        const val = await URLS.remove(query);
-        res.status(200).json(val);
+        const removedPost = await URLS.deleteOne(query);
+            if(removedPost.deletedCount==0){
+                    res.status(404).json({
+                        message : 'Short url is not found'
+                    })
+            }
+            else{
+                    res.status(200).json(removedPost);
+            }
     }catch(err){
-        res.status(404).json({message : err});
+        console.log(err);
+        res.status(500).json({message : err});
+    }
+})
+// update a long url
+router.patch('/:shortUrl',async(req,res)=>{
+    try{
+        const updatedPost = await URLS.updateOne(
+            {ShortUrl : req.params.shortUrl},
+            {LongUrl : req.body.LongUrl}
+            );
+        if(updatedPost.modifiedCount == 0){
+           res.status(404).json({
+                message : "short url not found"
+            })
+        }
+        else{
+            res.status(200).json(updatedPost);
+        }
+    }
+    catch(err){
+        res.status(500).json({
+            message : err
+        });
     }
 })
 
